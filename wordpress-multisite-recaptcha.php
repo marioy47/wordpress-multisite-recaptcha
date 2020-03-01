@@ -42,4 +42,5 @@ require_once __DIR__ . '/vendor/autoload.php';
 // This class is creates and saves multisite options.
 Settings_Page::get_instance()->add_hooks();
 
+// Adds the recaptcha in the login page.
 Auth_Recaptcha::get_instance()->add_hooks();
