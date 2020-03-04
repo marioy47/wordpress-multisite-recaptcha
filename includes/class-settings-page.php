@@ -82,9 +82,9 @@ class Settings_Page {
 
 		// Register a new section on the page.
 		add_settings_section(
-			'section-keys',
+			'section-config',
 			__( 'Site keys', 'multisite-recaptcha' ),
-			array( $this, 'section_keys' ),
+			array( $this, 'section_config' ),
 			$this->settings_slug . '-page'
 		);
 
@@ -93,18 +93,39 @@ class Settings_Page {
 
 		// Fields.
 		add_settings_field(
-			'multisite-recaptcha-key',
+			'multisite-recaptcha-sitekey',
 			__( 'Site Key', 'multisite-recaptcha' ),
-			array( $this, 'field_site_key' ), // callback.
+			array( $this, 'field_sitekey' ), // callback.
 			$this->settings_slug . '-page', // page.
-			'section-keys' // section.
+			'section-config' // section.
 		);
 		add_settings_field(
-			'multisite-recaptcha-secret',
+			'multisite-recaptcha-sitesecret',
 			__( 'Site Secret', 'multisite-recaptcha' ),
-			array( $this, 'field_site_secret' ), // callback.
+			array( $this, 'field_sitesecret' ), // callback.
 			$this->settings_slug . '-page', // page.
-			'section-keys' // section.
+			'section-config' // section.
+		);
+		add_settings_field(
+			'multisite-recaptcha-theme',
+			__( 'Theme', 'multisite-recaptcha' ),
+			array( $this, 'field_theme' ), // callback.
+			$this->settings_slug . '-page', // page.
+			'section-config' // section.
+		);
+		add_settings_field(
+			'multisite-recaptcha-size',
+			__( 'Size', 'multisite-recaptcha' ),
+			array( $this, 'field_size' ), // callback.
+			$this->settings_slug . '-page', // page.
+			'section-config' // section.
+		);
+		add_settings_field(
+			'multisite-recaptcha-render',
+			__( 'Render', 'multisite-recaptcha' ),
+			array( $this, 'field_render' ), // callback.
+			$this->settings_slug . '-page', // page.
+			'section-config' // section.
 		);
 	}
 
@@ -173,7 +194,7 @@ class Settings_Page {
 	 *
 	 * @return void
 	 */
-	public function section_keys() {
+	public function section_config() {
 		// translators: %s is the URL for google recaptcha admin.
 		printf( __( 'Get you site key and secret from <a href="%s" target="_blank">here</a>', 'multisite-recaptcha' ), 'https://www.google.com/recaptcha/admin' );
 	}
@@ -183,9 +204,9 @@ class Settings_Page {
 	 *
 	 * @return void
 	 */
-	public function field_site_key() {
-		$val = array_key_exists( 'site_key', $this->options ) ? $this->options['site_key'] : '';
-		echo '<input type="text" name="multisite_recaptcha[site_key]" value="' . esc_attr( $val ) . '" size="50" />';
+	public function field_sitekey() {
+		$val = array_key_exists( 'sitekey', $this->options ) ? $this->options['sitekey'] : '';
+		echo '<input type="text" name="multisite_recaptcha[sitekey]" value="' . esc_attr( $val ) . '" size="50" />';
 	}
 
 	/**
@@ -193,9 +214,48 @@ class Settings_Page {
 	 *
 	 * @return void
 	 */
-	public function field_site_secret() {
-		$val = array_key_exists( 'site_secret', $this->options ) ? $this->options['site_secret'] : '';
-		echo '<input type="text" name="multisite_recaptcha[site_secret]" value="' . esc_attr( $val ) . '" size="50"/>';
+	public function field_sitesecret() {
+		$val = array_key_exists( 'sitesecret', $this->options ) ? $this->options['sitesecret'] : '';
+		echo '<input type="text" name="multisite_recaptcha[sitesecret]" value="' . esc_attr( $val ) . '" size="50"/>';
+	}
+
+	/**
+	 * Select light or dark.
+	 *
+	 * @return void
+	 */
+	public function field_theme() {
+		$val = array_key_exists( 'theme', $this->options ) ? $this->options['theme'] : 'light';
+		echo '<select name="multisite_recaptcha[theme]">';
+			echo '<option value="light" ' . selected( 'light', $val, true ) . '>' . __( 'Light', 'multisite-recaptcha' ) . '</option>';
+			echo '<option value="dark" ' . selected( 'dark', $val, true ) . '>' . __( 'Dark', 'multisite-recaptcha' ) . '</option>';
+		echo '</select>';
+	}
+
+	/**
+	 * Select between normal or compact.
+	 *
+	 * @return void
+	 */
+	public function field_size() {
+		$val = array_key_exists( 'size', $this->options ) ? $this->options['size'] : 'normal';
+		echo '<select name="multisite_recaptcha[size]">';
+			echo '<option value="normal" ' . selected( 'normal', $val, true ) . '>' . __( 'Normal', 'multisite-recaptcha' ) . '</option>';
+			echo '<option value="compact" ' . selected( 'compact', $val, true ) . '>' . __( 'Compact', 'multisite-recaptcha' ) . '</option>';
+		echo '</select>';
+	}
+
+	/**
+	 * Select when to load the recaptcha: on page load or when submit button is clicked.
+	 *
+	 * @return void
+	 */
+	public function field_render() {
+		$val = array_key_exists( 'render', $this->options ) ? $this->options['render'] : 'normal';
+		echo '<select name="multisite_recaptcha[render]">';
+			echo '<option value="onload" ' . selected( 'normal', $val, true ) . '>' . __( 'Normal', 'multisite-recaptcha' ) . '</option>';
+			echo '<option value="explicit" ' . selected( 'explicit', $val, true ) . '>' . __( 'When submit buton is clicked', 'multisite-recaptcha' ) . '</option>';
+		echo '</select>';
 	}
 
 }

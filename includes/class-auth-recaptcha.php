@@ -41,6 +41,7 @@ class Auth_Recaptcha {
 	 */
 	public function add_hooks(): self {
 		add_action( 'login_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_filter( 'script_loader_tag', array( $this, 'alter_script_tag' ) );
 
 		add_action( 'login_head', array( $this, 'login_inline_styles' ) );
 		add_action( 'login_form', array( $this, 'g_recaptcha' ) );
@@ -55,8 +56,33 @@ class Auth_Recaptcha {
 	 * @return self
 	 */
 	public function enqueue_scripts(): self {
-		wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js', array(), WORDPRESS_MULTISITE_RECAPTCHA, false );
+		wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js??onload=recaptchaCallback&render=explicit', array(), WORDPRESS_MULTISITE_RECAPTCHA, true );
+		$options = shortcode_atts(
+			array(
+				'sitekey' => '',
+				'theme'   => '',
+				'size'    => '',
+				'render'  => '',
+				'',
+			),
+			get_site_option( 'multisite_recaptcha', array() )
+		);
+		$js      = 'function recaptchaCallback() { grecaptcha.render ("google-recaptcha-container", ' . wp_json_encode( $options ) . '); }';
+		wp_add_inline_script( 'google-recaptcha', $js, 'before' );
 		return $this;
+	}
+
+	/**
+	 * Add async defer when loading the recaptcha script.
+	 *
+	 * @param string $tag The origina `<script>` tag before maing any change.
+	 * @return string
+	 */
+	public function alter_script_tag( $tag ): string {
+		if ( strpos( $tag, 'www.google.com/recaptcha/api.js' ) === false ) {
+			return $tag;
+		}
+		return str_replace( 'src', 'async defer src', $tag );
 	}
 
 	/**
@@ -74,8 +100,8 @@ class Auth_Recaptcha {
 	 * @return void
 	 */
 	public function g_recaptcha() {
-		$options = get_site_option( 'multisite_recaptcha', array( 'site_key' => '' ) );
-		echo '<div class="g-recaptcha" data-sitekey="' . $options['site_key'] . '" style="width: 100%;">hola</div>';
+		echo '<div id="google-recaptcha-container"></div>';
+
 	}
 
 	/**
@@ -117,6 +143,5 @@ class Auth_Recaptcha {
 			return new \WP_Error( 'authentication_failed', '<strong>ERROR</strong>: ' . implode( ', ', $result['error-codes'] ) );
 		}
 		return $user;
-
 	}
 }
