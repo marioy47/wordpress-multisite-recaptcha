@@ -1,0 +1,39 @@
+{
+	"name": "wordpress-multisite-recaptcha",
+	"version": "1.0.0",
+	"description": "A WordPress plugin to add [Google's Recaptcha](https://www.google.com/recaptcha) on every site on a multisite environment.",
+	"scripts": {
+		"start": "gulp watch",
+		"build": "composer install --no-dev && composer dumpautoload -o && cross-env NODE_ENV=production gulp build",
+		"compress": "composer install --no-dev && composer dumpautoload -o && cross-env NODE_ENV=production gulp compress",
+		"clean": "gulp clean",
+		"pot": "gulp pot"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/marioy47/wordpress-multisite-recaptcha.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/marioy47/wordpress-multisite-recaptcha/issues"
+	},
+	"homepage": "https://github.com/marioy47/wordpress-multisite-recaptcha#readme",
+	"devDependencies": {
+		"@babel/cli": "^7.8.4",
+		"@babel/core": "^7.8.6",
+		"@babel/preset-env": "^7.8.6",
+		"babel-loader": "^8.0.6",
+		"bable-loader": "^0.0.1-security",
+		"cross-env": "^7.0.1",
+		"del": "^5.1.0",
+		"gulp": "^4.0.2",
+		"gulp-composer": "^0.4.5",
+		"gulp-wp-pot": "^2.3.6",
+		"gulp-zip": "^5.0.1",
+		"webpack": "^4.42.0",
+		"webpack-cli": "^3.3.11",
+		"webpack-stream": "^5.2.1"
+	}
+}

@@ -47,6 +47,7 @@ class Auth_Recaptcha {
 		add_action( 'login_form', array( $this, 'g_recaptcha' ) );
 
 		add_filter( 'authenticate', array( $this, 'verify_captcha' ), 20, 3 );
+
 		return $this;
 	}
 
@@ -56,6 +57,7 @@ class Auth_Recaptcha {
 	 * @return self
 	 */
 	public function enqueue_scripts(): self {
+		wp_enqueue_script( 'multisite-recaptcha', plugin_dir_url( __DIR__ ) . 'js/v2.js', array(), WORDPRESS_MULTISITE_RECAPTCHA, true );
 		wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js??onload=recaptchaCallback&render=explicit', array(), WORDPRESS_MULTISITE_RECAPTCHA, true );
 		$options = shortcode_atts(
 			array(
@@ -63,12 +65,19 @@ class Auth_Recaptcha {
 				'theme'   => '',
 				'size'    => '',
 				'render'  => '',
-				'',
 			),
 			get_site_option( 'multisite_recaptcha', array() )
 		);
-		$js      = 'function recaptchaCallback() { grecaptcha.render ("google-recaptcha-container", ' . wp_json_encode( $options ) . '); }';
-		wp_add_inline_script( 'google-recaptcha', $js, 'before' );
+		wp_localize_script(
+			'multisite-recaptcha',
+			'MULTISITE_RECAPTCHA', // Must be the same as v2.js.
+			array(
+				'options' => $options,
+				'element' => 'google-recaptcha-container',
+				'ajaxurl' => admin_url( 'admin-ajax.php' ),
+
+			)
+		);
 		return $this;
 	}
 
@@ -131,7 +140,7 @@ class Auth_Recaptcha {
 				'site_secret' => '',
 			)
 		);
-		$url     = 'https://www.google.com/recaptcha/api/siteverify?secret=' . $options['site_secret'] . '&response=' . $_POST['g-recaptcha-response'];
+		$url     = 'https://www.google.com/recaptcha/api/siteverify?secret=' . $options['sitesecret'] . '&response=' . $_POST['g-recaptcha-response'];
 		$json    = file_get_contents( $url );
 		$result  = null;
 		try {
@@ -144,4 +153,5 @@ class Auth_Recaptcha {
 		}
 		return $user;
 	}
+
 }
