@@ -53,6 +53,9 @@ class Auth_Recaptcha {
 		add_action( 'lostpassword_post', array( $this, 'lost_password_verify_captcha' ), 10, 1 );
 
 		// WooCommerce.
+		add_action( 'woocommerce_login_form_start', array( $this, 'enqueue_scripts' ) );
+		add_action( 'woocommerce_before_lost_password_form', array( $this, 'enqueue_scripts' ) );
+		add_action( 'woocommerce_login_form', array( $this, 'g_recaptcha' ) );
 		add_action( 'woocommerce_lostpassword_form', array( $this, 'g_recaptcha' ) );
 
 		return $this;
