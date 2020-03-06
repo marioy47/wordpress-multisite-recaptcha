@@ -26,7 +26,6 @@ window.recaptchaOnSubmit = (val) => {
 	}
 }
 
-
 /**
  * Callback fuction name should be the same as class-auth-recpatcha.php.
  */
@@ -39,7 +38,7 @@ window.recaptchaCallback = () => {
 
 	let wp_submit = document.getElementById('wp-submit');
 	if (wp_submit) {
-		button.disabled = true;
+		wp_submit.disabled = true;
 	}
 
 	const woo_submit = document.querySelectorAll('.woocommerce-form-login__submit');

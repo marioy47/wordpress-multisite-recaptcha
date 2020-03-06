@@ -81,8 +81,18 @@ class Auth_Recaptcha {
 	 * @return self
 	 */
 	public function enqueue_scripts(): self {
-		wp_enqueue_script( 'multisite-recaptcha', plugin_dir_url( __DIR__ ) . 'js/v2.js', array(), WORDPRESS_MULTISITE_RECAPTCHA, true );
-		wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js??onload=recaptchaCallback&render=explicit', array(), WORDPRESS_MULTISITE_RECAPTCHA, true );
+
+		$network = get_site_option( 'multisite_recaptcha', array() );
+		$site    = get_option( 'multisite_recaptcha', array() );
+
+		if ( ! empty( $site['sitekey'] ) ) {
+			$network['sitekey'] = $site['sitekey'];
+		}
+		if ( ! empty( $site['sitesecret'] ) ) {
+			$network['sitesecret'] = $site['sitesecret'];
+		}
+		$network = array_merge( $site, $network );
+
 		$options = shortcode_atts(
 			array(
 				'sitekey' => '',
@@ -90,8 +100,14 @@ class Auth_Recaptcha {
 				'size'    => '',
 				'render'  => '',
 			),
-			get_site_option( 'multisite_recaptcha', array() )
+			$network
 		);
+		if ( empty( $network['sitekey'] ) || empty( $network['sitesecret'] ) ) {
+			return $this;
+		}
+
+		wp_enqueue_script( 'multisite-recaptcha', plugin_dir_url( __DIR__ ) . 'js/v2.js', array(), WORDPRESS_MULTISITE_RECAPTCHA, true );
+		wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js??onload=recaptchaCallback&render=explicit', array(), WORDPRESS_MULTISITE_RECAPTCHA, true );
 		wp_localize_script(
 			'multisite-recaptcha',
 			'MULTISITE_RECAPTCHA', // Must be the same as v2.js.
@@ -130,10 +146,16 @@ class Auth_Recaptcha {
 	 * @return bool|\WP_Error true on success, WP_Error on if not.
 	 */
 	protected function verify_google_recaptcha() {
-		$options = get_site_option( 'multisite_recaptcha', array( 'sitesecret' => '' ) );
-		$url     = 'https://www.google.com/recaptcha/api/siteverify?secret=' . $options['sitesecret'] . '&response=' . $_POST['g-recaptcha-response'];
-		$json    = file_get_contents( $url );
-		$result  = null;
+		$network = get_site_option( 'multisite_recaptcha', array() );
+		$site    = get_option( 'multisite_recaptcha', array() );
+
+		if ( ! empty( $site['sitesecret'] ) ) {
+			$network['sitesecret'] = $site['sitesecret'];
+		}
+
+		$url    = 'https://www.google.com/recaptcha/api/siteverify?secret=' . $network['sitesecret'] . '&response=' . $_POST['g-recaptcha-response'];
+		$json   = file_get_contents( $url );
+		$result = null;
 		try {
 			$result = json_decode( $json, true );
 		} catch ( Exception $e ) {

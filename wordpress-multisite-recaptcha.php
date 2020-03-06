@@ -39,8 +39,13 @@ define( 'WORDPRESS_MULTISITE_RECAPTCHA', '1.0.0' );
 // Lets use composers autoload to load classes from the includes/ dir.
 require_once __DIR__ . '/vendor/autoload.php';
 
+
 // This class is creates and saves multisite options.
 Settings_Network_Page::get_instance()->add_hooks();
 
+// This creates a SITE settings page.
+Settings_Site_Page::get_instance()->add_hooks();
+
 // Adds the recaptcha in the login page.
 Auth_Recaptcha::get_instance()->add_hooks();
+
