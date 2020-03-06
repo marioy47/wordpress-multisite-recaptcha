@@ -13,7 +13,7 @@ namespace Wp_Mu_Recaptcha;
 /**
  * Creates a new settings page on "Network Admin > Network >Recaptcha".
  */
-class Settings_Page {
+class Settings_Network_Page {
 
 
 	/**
