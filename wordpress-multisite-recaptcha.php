@@ -40,11 +40,21 @@ define( 'WORDPRESS_MULTISITE_RECAPTCHA', '1.0.0' );
 require_once __DIR__ . '/vendor/autoload.php';
 
 
+$multisite_plugin_slug = 'wp-mu-recaptcha';
+$site_plugin_slug      = 'wp-recaptcha';
+
+
 // This class is creates and saves multisite options.
-Settings_Network_Page::get_instance()->add_hooks();
+Settings_Network_Page::get_instance()
+	->set_slug( $multisite_plugin_slug )
+	->set_file( __FILE__ )
+	->add_hooks();
 
 // This creates a SITE settings page.
-Settings_Site_Page::get_instance()->add_hooks();
+Settings_Site_Page::get_instance()
+	->set_slug( $site_plugin_slug )
+	->set_file( __FILE__ )
+	->add_hooks();
 
 // Adds the recaptcha in the login page.
 Auth_Recaptcha::get_instance()->add_hooks();

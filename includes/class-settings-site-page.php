@@ -20,10 +20,42 @@ class Settings_Site_Page {
 	 *
 	 * @var string
 	 */
-	protected $settings_slug = 'wp-mu-recaptcha';
+	protected $plugin_slug;
 
-	protected $plugin_slug = 'wp-mu-recaptcha';
+	/**
+	 * Setter for the plugin_slug variable.
+	 *
+	 * @param string $slug The new slug.
+	 * @return self
+	 */
+	public function set_slug( $slug ): self {
+		$this->plugin_slug = $slug;
+		return $this;
+	}
 
+	/**
+	 * The path to the initial plugin file.
+	 *
+	 * @var string
+	 */
+	protected $plugin_file;
+
+	/**
+	 * Setter for the initial plugin file.
+	 *
+	 * @param string $file The new absolute path.
+	 * @return self
+	 */
+	public function set_file( $file ): self {
+		$this->plugin_file = $file;
+		return $this;
+	}
+
+	/**
+	 * Thame of the options group for the captcha variables.
+	 *
+	 * @var string
+	 */
 	protected $options_name = 'multisite_recaptcha';
 
 	/**
@@ -56,9 +88,22 @@ class Settings_Site_Page {
 	 * @return self
 	 */
 	public function add_hooks(): self {
+		$basename = plugin_basename( $this->plugin_file );
+		add_action( 'plugin_action_links_' . $basename, array( $this, 'action_links' ) );
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_fields' ) );
 		return $this;
+	}
+
+	/**
+	 * Add settings links in the plugin list page under the plugin name.
+	 *
+	 * @param array $links The links array provider by WordPress.
+	 * @return void
+	 */
+	public function action_links( $links ) {
+		$links[] = '<a href="' . admin_url( 'options-general.php?page=' . $this->plugin_slug ) . '">' . __( 'Settings', 'multisite-captcha' ) . '</a>';
+		return $links;
 	}
 
 	/**
@@ -113,7 +158,7 @@ class Settings_Site_Page {
 			__( 'Multisite Recaptcha', 'multisite-recaptcha' ),
 			__( 'Multisite Recaptcha', 'multisite-recaptcha' ),
 			'manage_network_options',
-			$this->settings_slug,
+			$this->plugin_slug,
 			array( $this, 'create_page' )
 		);
 
@@ -122,11 +167,11 @@ class Settings_Site_Page {
 			'section-config',
 			__( 'Site keys', 'multisite-recaptcha' ),
 			array( $this, 'section_config' ),
-			$this->settings_slug
+			$this->plugin_slug
 		);
 
 		// Register a new variable and register the function that updates it.
-		register_setting( $this->settings_slug, 'multisite_recaptcha' );
+		register_setting( $this->plugin_slug, 'multisite_recaptcha' );
 
 		// Fields.
 
@@ -134,7 +179,7 @@ class Settings_Site_Page {
 			'multisite-recaptcha-sitekey',
 			__( 'Site Key', 'multisite-recaptcha' ),
 			array( $this, 'field_sitekey' ), // callback.
-			$this->settings_slug, // page.
+			$this->plugin_slug, // page.
 			'section-config' // section.
 		);
 
@@ -142,7 +187,7 @@ class Settings_Site_Page {
 			'multisite-recaptcha-sitesecret',
 			__( 'Site Secret', 'multisite-recaptcha' ),
 			array( $this, 'field_sitesecret' ), // callback.
-			$this->settings_slug, // page.
+			$this->plugin_slug, // page.
 			'section-config' // section.
 		);
 
@@ -151,7 +196,7 @@ class Settings_Site_Page {
 				'multisite-recaptcha-theme',
 				__( 'Theme', 'multisite-recaptcha' ),
 				array( $this, 'field_theme' ), // callback.
-				$this->settings_slug, // page.
+				$this->plugin_slug, // page.
 				'section-config' // section.
 			);
 
@@ -159,7 +204,7 @@ class Settings_Site_Page {
 				'multisite-recaptcha-size',
 				__( 'Size', 'multisite-recaptcha' ),
 				array( $this, 'field_size' ), // callback.
-				$this->settings_slug, // page.
+				$this->plugin_slug, // page.
 				'section-config' // section.
 			);
 
@@ -167,7 +212,7 @@ class Settings_Site_Page {
 				'multisite-recaptcha-render',
 				__( 'Render', 'multisite-recaptcha' ),
 				array( $this, 'field_render' ), // callback.
-				$this->settings_slug, // page.
+				$this->plugin_slug, // page.
 				'section-config' // section.
 			);
 		} // is_multisite
@@ -183,7 +228,7 @@ class Settings_Site_Page {
 	 */
 	public function section_config() {
 		// translators: %s is the URL for google recaptcha admin.
-		printf( __( 'Get you site key and secret from <a href="%s" target="_blank">here</a>', 'multisite-recaptcha' ), 'https://www.google.com/recaptcha/admin' );
+		printf( __( 'Get you site key and secret from <a href="%s" target="_blank">here</a>. If you leave this fields empty, the multisite config will be used instead', 'multisite-recaptcha' ), 'https://www.google.com/recaptcha/admin' );
 	}
 
 	/**

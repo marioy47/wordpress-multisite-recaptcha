@@ -21,10 +21,39 @@ class Settings_Network_Page {
 	 *
 	 * @var string
 	 */
-	protected $settings_slug = 'wp-mu-recaptcha';
+	protected $plugin_slug;
 
 	/**
-	 * All the optioons in one array.
+	 * This will be used for the SubMenu URL in the settings page and to verify which variables to save.
+	 *
+	 * @param string $slug The new slug.
+	 * @return self
+	 */
+	public function set_slug( $slug ): self {
+		$this->plugin_slug = $slug;
+		return $this;
+	}
+
+	/**
+	 * Required for the plugin list links.
+	 *
+	 * @var string
+	 */
+	protected $plugin_file;
+
+	/**
+	 * Reqruired for the plugin list links.
+	 *
+	 * @param string $file the path to the initial pluigin file.
+	 * @return self
+	 */
+	public function set_file( $file ): self {
+		$this->plugin_file = $file;
+		return $this;
+	}
+
+	/**
+	 * All the options in one array.
 	 *
 	 * @var array
 	 */
@@ -56,11 +85,25 @@ class Settings_Network_Page {
 	 * @return void
 	 */
 	public function add_hooks() {
+		$basename = plugin_basename( $this->plugin_file );
+
+		add_action( 'network_admin_plugin_action_links_' . $basename, array( $this, 'action_links' ) );
 		// Register page on menu.
 		add_action( 'network_admin_menu', array( $this, 'menu_and_fields' ) );
 
 		// Function to execute when saving data.
-		add_action( 'network_admin_edit_' . $this->settings_slug . '-update', array( $this, 'update' ) );
+		add_action( 'network_admin_edit_' . $this->plugin_slug . '-update', array( $this, 'update' ) );
+	}
+
+	/**
+	 * Adds links under the name.
+	 *
+	 * @param [type] $links
+	 * @return array
+	 */
+	public function action_links( $links ) {
+		$links[] = '<a href="' . network_admin_url( 'settings.php?page=' ) . $this->plugin_slug . '-page">' . __( 'Settings', 'multisite-recaptcha' ) . '</a>';
+		return $links;
 	}
 
 	/**
@@ -76,7 +119,7 @@ class Settings_Network_Page {
 			__( 'Multisite Recaptcha', 'multisite-recaptcha' ),
 			__( 'Multisite Recaptcha', 'multisite-recaptcha' ),
 			'manage_network_options',
-			$this->settings_slug . '-page',
+			$this->plugin_slug . '-page',
 			array( $this, 'create_page' )
 		);
 
@@ -85,46 +128,39 @@ class Settings_Network_Page {
 			'section-config',
 			__( 'Site keys', 'multisite-recaptcha' ),
 			array( $this, 'section_config' ),
-			$this->settings_slug . '-page'
+			$this->plugin_slug . '-page'
 		);
 
 		// Register a new variable and register the function that updates it.
-		register_setting( $this->settings_slug . '-page', 'multisite_recaptcha' );
+		register_setting( $this->plugin_slug . '-page', 'multisite_recaptcha' );
 
 		// Fields.
 		add_settings_field(
 			'multisite-recaptcha-sitekey',
 			__( 'Site Key', 'multisite-recaptcha' ),
 			array( $this, 'field_sitekey' ), // callback.
-			$this->settings_slug . '-page', // page.
+			$this->plugin_slug . '-page', // page.
 			'section-config' // section.
 		);
 		add_settings_field(
 			'multisite-recaptcha-sitesecret',
 			__( 'Site Secret', 'multisite-recaptcha' ),
 			array( $this, 'field_sitesecret' ), // callback.
-			$this->settings_slug . '-page', // page.
+			$this->plugin_slug . '-page', // page.
 			'section-config' // section.
 		);
 		add_settings_field(
 			'multisite-recaptcha-theme',
 			__( 'Theme', 'multisite-recaptcha' ),
 			array( $this, 'field_theme' ), // callback.
-			$this->settings_slug . '-page', // page.
+			$this->plugin_slug . '-page', // page.
 			'section-config' // section.
 		);
 		add_settings_field(
 			'multisite-recaptcha-size',
 			__( 'Size', 'multisite-recaptcha' ),
 			array( $this, 'field_size' ), // callback.
-			$this->settings_slug . '-page', // page.
-			'section-config' // section.
-		);
-		add_settings_field(
-			'multisite-recaptcha-render',
-			__( 'Render', 'multisite-recaptcha' ),
-			array( $this, 'field_render' ), // callback.
-			$this->settings_slug . '-page', // page.
+			$this->plugin_slug . '-page', // page.
 			'section-config' // section.
 		);
 	}
@@ -147,10 +183,10 @@ class Settings_Network_Page {
 
 		<div class="wrap">
 			<h1><?php echo esc_attr( get_admin_page_title() ); ?></h1>
-			<form action="edit.php?action=<?php echo esc_attr( $this->settings_slug ); ?>-update" method="POST">
+			<form action="edit.php?action=<?php echo esc_attr( $this->plugin_slug ); ?>-update" method="POST">
 				<?php
-					settings_fields( $this->settings_slug . '-page' );
-					do_settings_sections( $this->settings_slug . '-page' );
+					settings_fields( $this->plugin_slug . '-page' );
+					do_settings_sections( $this->plugin_slug . '-page' );
 					submit_button();
 				?>
 			</form>
@@ -164,10 +200,10 @@ class Settings_Network_Page {
 	 * @return void
 	 */
 	public function update() {
-		\check_admin_referer( $this->settings_slug . '-page-options' );
+		\check_admin_referer( $this->plugin_slug . '-page-options' );
 		global $new_whitelist_options;
 
-		$options = $new_whitelist_options[ $this->settings_slug . '-page' ];
+		$options = $new_whitelist_options[ $this->plugin_slug . '-page' ];
 
 		foreach ( $options as $option ) {
 			if ( isset( $_POST[ $option ] ) ) {
@@ -180,7 +216,7 @@ class Settings_Network_Page {
 		wp_safe_redirect(
 			add_query_arg(
 				array(
-					'page'    => $this->settings_slug . '-page',
+					'page'    => $this->plugin_slug . '-page',
 					'updated' => 'true',
 				),
 				network_admin_url( 'settings.php' )
@@ -196,7 +232,8 @@ class Settings_Network_Page {
 	 */
 	public function section_config() {
 		// translators: %s is the URL for google recaptcha admin.
-		printf( __( 'Get you site key and secret from <a href="%s" target="_blank">here</a>', 'multisite-recaptcha' ), 'https://www.google.com/recaptcha/admin' );
+		printf( __( 'Get you site key and secret from <a href="%1$s" target="_blank">here</a>. And remember to add every domain you support to the <a href="%2$s" target="_blank">recapcha config</a>', 'multisite-recaptcha' ), 'https://www.google.com/recaptcha/admin', 'https://developers.google.com/recaptcha/docs/settings' );
+
 	}
 
 	/**
@@ -244,18 +281,4 @@ class Settings_Network_Page {
 			echo '<option value="compact" ' . selected( 'compact', $val, true ) . '>' . __( 'Compact', 'multisite-recaptcha' ) . '</option>';
 		echo '</select>';
 	}
-
-	/**
-	 * Select when to load the recaptcha: on page load or when submit button is clicked.
-	 *
-	 * @return void
-	 */
-	public function field_render() {
-		$val = array_key_exists( 'render', $this->options ) ? $this->options['render'] : 'normal';
-		echo '<select name="multisite_recaptcha[render]">';
-			echo '<option value="onload" ' . selected( 'normal', $val, true ) . '>' . __( 'Normal', 'multisite-recaptcha' ) . '</option>';
-			echo '<option value="explicit" ' . selected( 'explicit', $val, true ) . '>' . __( 'When submit buton is clicked', 'multisite-recaptcha' ) . '</option>';
-		echo '</select>';
-	}
-
 }
