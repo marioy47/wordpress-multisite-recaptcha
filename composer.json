@@ -24,7 +24,15 @@
 			"@install-codestandards"
 		],
 		"phpcs": "phpcs",
-		"phpcbf": "phpcbf"
+		"phpcbf": "phpcbf",
+		"zip": [
+			"npm run build",
+			"@composer install --no-dev",
+			"@compser dump-autoload -o",
+			"A=`basename $PWD` && cd .. && zip -r ${A}/${A}.zip ${A}/{includes,js,languages,vendor,*.php}",
+			"@composer install",
+			"@composer dump-autoload"
+		]
 	},
 	"autoload": {
 		"classmap": [
