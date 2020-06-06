@@ -12,7 +12,7 @@
  * Plugin Name:       WordPress Multisite Recaptcha
  * Plugin URI:        https://marioyepes.com
  * Description:       Adds a Google Recaptcha validator on the login and "forgot your password" forms.
- * Version:           1.0.0
+ * Version:           1.1.0
  * Author:            Mario Yepes
  * Author URI:        https://marioyepes.com
  * License:           GPL-2.0+
