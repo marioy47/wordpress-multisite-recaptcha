@@ -16,6 +16,7 @@ namespace Wp_Mu_Recaptcha;
 class Settings_Network_Page {
 
 
+
 	/**
 	 * This will be used for the SubMenu URL in the settings page and to verify which variables to save.
 	 *
@@ -63,9 +64,7 @@ class Settings_Network_Page {
 	/**
 	 * Singleton.
 	 */
-	private function __construct() {
-
-	}
+	private function __construct() {    }
 
 	/**
 	 * Static Factory method.
@@ -98,7 +97,7 @@ class Settings_Network_Page {
 	/**
 	 * Adds links under the name.
 	 *
-	 * @param [type] $links
+	 * @param array $links Array of links passed by WordPress.
 	 * @return array
 	 */
 	public function action_links( $links ) {
@@ -112,8 +111,7 @@ class Settings_Network_Page {
 	 * @return void
 	 */
 	public function menu_and_fields() {
-
-		// Create the submenu and register the page creation function.
+		 // Create the submenu and register the page creation function.
 		add_submenu_page(
 			'settings.php',
 			__( 'Multisite Recaptcha', 'multisite-recaptcha' ),
@@ -163,6 +161,13 @@ class Settings_Network_Page {
 			$this->plugin_slug . '-page', // page.
 			'section-config' // section.
 		);
+		add_settings_field(
+			'multisite-recaptcha-enabled',
+			__( 'Enable in all sites by default?', 'multisite-recaptcha' ),
+			array( $this, 'field_enabled' ), // callback.
+			$this->plugin_slug . '-page', // page.
+			'section-config' // section.
+		);
 	}
 
 	/**
@@ -173,7 +178,7 @@ class Settings_Network_Page {
 	 * @phpcs:disable WordPress.Security.NonceVerification.Recommended
 	 */
 	public function create_page() {
-		$this->options = get_site_option( 'multisite_recaptcha', array() );
+		 $this->options = get_site_option( 'multisite_recaptcha', array() );
 		?>
 		<?php if ( isset( $_GET['updated'] ) ) : ?>
 			<div id="message" class="updated notice is-dismissible">
@@ -185,9 +190,9 @@ class Settings_Network_Page {
 			<h1><?php echo esc_attr( get_admin_page_title() ); ?></h1>
 			<form action="edit.php?action=<?php echo esc_attr( $this->plugin_slug ); ?>-update" method="POST">
 				<?php
-					settings_fields( $this->plugin_slug . '-page' );
-					do_settings_sections( $this->plugin_slug . '-page' );
-					submit_button();
+				settings_fields( $this->plugin_slug . '-page' );
+				do_settings_sections( $this->plugin_slug . '-page' );
+				submit_button();
 				?>
 			</form>
 		</div>
@@ -233,7 +238,6 @@ class Settings_Network_Page {
 	public function section_config() {
 		// translators: %s is the URL for google recaptcha admin.
 		printf( __( 'Get you site key and secret from <a href="%1$s" target="_blank">here</a>. And remember to add every domain you support to the <a href="%2$s" target="_blank">recapcha config</a>', 'multisite-recaptcha' ), 'https://www.google.com/recaptcha/admin', 'https://developers.google.com/recaptcha/docs/settings' );
-
 	}
 
 	/**
@@ -262,10 +266,10 @@ class Settings_Network_Page {
 	 * @return void
 	 */
 	public function field_theme() {
-		$val = array_key_exists( 'theme', $this->options ) ? $this->options['theme'] : 'light';
+		 $val = array_key_exists( 'theme', $this->options ) ? $this->options['theme'] : 'light';
 		echo '<select name="multisite_recaptcha[theme]">';
-			echo '<option value="light" ' . selected( 'light', $val, true ) . '>' . __( 'Light', 'multisite-recaptcha' ) . '</option>';
-			echo '<option value="dark" ' . selected( 'dark', $val, true ) . '>' . __( 'Dark', 'multisite-recaptcha' ) . '</option>';
+		echo '<option value="light" ' . selected( 'light', $val, true ) . '>' . __( 'Light', 'multisite-recaptcha' ) . '</option>';
+		echo '<option value="dark" ' . selected( 'dark', $val, true ) . '>' . __( 'Dark', 'multisite-recaptcha' ) . '</option>';
 		echo '</select>';
 	}
 
@@ -277,8 +281,21 @@ class Settings_Network_Page {
 	public function field_size() {
 		$val = array_key_exists( 'size', $this->options ) ? $this->options['size'] : 'normal';
 		echo '<select name="multisite_recaptcha[size]">';
-			echo '<option value="normal" ' . selected( 'normal', $val, true ) . '>' . __( 'Normal', 'multisite-recaptcha' ) . '</option>';
-			echo '<option value="compact" ' . selected( 'compact', $val, true ) . '>' . __( 'Compact', 'multisite-recaptcha' ) . '</option>';
+		echo '<option value="normal" ' . selected( 'normal', $val, true ) . '>' . __( 'Normal', 'multisite-recaptcha' ) . '</option>';
+		echo '<option value="compact" ' . selected( 'compact', $val, true ) . '>' . __( 'Compact', 'multisite-recaptcha' ) . '</option>';
+		echo '</select>';
+	}
+
+	/**
+	 * Enable by default field.
+	 *
+	 * @return void
+	 */
+	public function field_enabled() {
+		$val = array_key_exists( 'enabled', $this->options ) ? $this->options['enabled'] : 'no';
+		echo '<select name="multisite_recaptcha[enabled]">';
+		echo '<option value="no" ' . selected( 'no', $val, true ) . '>' . __( 'No', 'multisite-recaptcha' ) . '</option>';
+		echo '<option value="yes" ' . selected( 'yes', $val, true ) . '>' . __( 'Yes', 'multisite-recaptcha' ) . '</option>';
 		echo '</select>';
 	}
 }

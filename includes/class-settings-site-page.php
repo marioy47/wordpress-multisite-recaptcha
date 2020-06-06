@@ -99,10 +99,10 @@ class Settings_Site_Page {
 	 * Add settings links in the plugin list page under the plugin name.
 	 *
 	 * @param array $links The links array provider by WordPress.
-	 * @return void
+	 * @return array
 	 */
 	public function action_links( $links ) {
-		$links[] = '<a href="' . admin_url( 'options-general.php?page=' . $this->plugin_slug ) . '">' . __( 'Settings', 'multisite-captcha' ) . '</a>';
+		$links[] = '<a href="' . admin_url( 'options-general.php?page=' . $this->plugin_slug ) . '">' . __( 'Settings', 'multisite-recaptcha' ) . '</a>';
 		return $links;
 	}
 
@@ -151,6 +151,9 @@ class Settings_Site_Page {
 	 * @return self
 	 */
 	public function register_fields(): self {
+		if ( is_network_admin() ) {
+			return $this;
+		}
 
 		// Create the submenu and register the page creation function.
 		add_submenu_page(
@@ -187,6 +190,14 @@ class Settings_Site_Page {
 			'multisite-recaptcha-sitesecret',
 			__( 'Site Secret', 'multisite-recaptcha' ),
 			array( $this, 'field_sitesecret' ), // callback.
+			$this->plugin_slug, // page.
+			'section-config' // section.
+		);
+
+		add_settings_field(
+			'multisite-recaptcha-enabled',
+			__( 'Enable?', 'multisite-recaptcha' ),
+			array( $this, 'field_enabled' ), // callback.
 			$this->plugin_slug, // page.
 			'section-config' // section.
 		);
@@ -249,6 +260,21 @@ class Settings_Site_Page {
 	public function field_sitesecret() {
 		$val = array_key_exists( 'sitesecret', $this->options ) ? $this->options['sitesecret'] : '';
 		echo '<input type="text" name="multisite_recaptcha[sitesecret]" value="' . esc_attr( $val ) . '" size="50"/>';
+	}
+
+	/**
+	 * Enable or disable in this site.
+	 *
+	 * @return void
+	 */
+	public function field_enabled() {
+		$val = array_key_exists( 'enabled', $this->options ) ? $this->options['enabled'] : '';
+		echo '<select name="multisite_recaptcha[enabled]">';
+			echo '<option value="auto" ' . selected( 'auto', $val, true ) . '>' . __( 'Auto', 'multisite-recaptcha' ) . '</option>';
+			echo '<option value="no" ' . selected( 'no', $val, true ) . '>' . __( 'No', 'multisite-recaptcha' ) . '</option>';
+			echo '<option value="yes" ' . selected( 'yes', $val, true ) . '>' . __( 'Yes', 'multisite-recaptcha' ) . '</option>';
+		echo '</select>';
+		echo '<p class="description">"Auto" uses the multisite configuration</p>';
 	}
 
 	/**

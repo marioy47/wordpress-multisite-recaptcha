@@ -42,7 +42,7 @@ class Auth_Recaptcha {
 	public function add_hooks(): self {
 		add_filter( 'script_loader_tag', array( $this, 'alter_script_tag' ) );
 
-		// WordPress Native
+		// WordPress Native.
 		add_action( 'login_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'login_head', array( $this, 'login_inline_styles' ) );
 		add_action( 'login_form', array( $this, 'g_recaptcha' ) );

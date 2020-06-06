@@ -57,5 +57,12 @@ Settings_Site_Page::get_instance()
 	->add_hooks();
 
 // Adds the recaptcha in the login page.
-Auth_Recaptcha::get_instance()->add_hooks();
+$site_opts = get_option( 'multisite_recaptcha', array( 'enabled' => 'auto' ) );
+$net_opts  = get_site_option( 'multisite_recaptcha', array( 'enabled' => 'yes' ) );
+if ( 'yes' === $site_opts['enabled'] || ( 'auto' === $site_opts['enabled'] && 'yes' === $net_opts['enabled'] ) ) {
+	Auth_Recaptcha::get_instance()->add_hooks();
+}
+
+
+
 

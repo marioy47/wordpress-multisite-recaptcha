@@ -1,15 +1,13 @@
-
 /**
  * This function will be called by the callback on successful captcha.
  *
  * @param {string} val The return valur for the capcha validation.
  */
-window.recaptchaOnSubmit = (val) => {
+window.recaptchaOnSubmit = () => {
 	const wp_submit = document.getElementById('wp-submit');
 	if (wp_submit) {
 		wp_submit.disabled = false;
 	}
-
 
 	const woo_submit = document.querySelectorAll('.woocommerce-form-login__submit');
 	if (woo_submit) {
@@ -24,17 +22,14 @@ window.recaptchaOnSubmit = (val) => {
 			woo_forgot[i].disabled = false;
 		}
 	}
-}
+};
 
 /**
  * Callback fuction name should be the same as class-auth-recpatcha.php.
  */
 window.recaptchaCallback = () => {
 	MULTISITE_RECAPTCHA.options.callback = recaptchaOnSubmit;
-	grecaptcha.render(
-		MULTISITE_RECAPTCHA.element,
-		MULTISITE_RECAPTCHA.options
-	);
+	grecaptcha.render(MULTISITE_RECAPTCHA.element, MULTISITE_RECAPTCHA.options);
 
 	let wp_submit = document.getElementById('wp-submit');
 	if (wp_submit) {
@@ -54,4 +49,4 @@ window.recaptchaCallback = () => {
 			woo_forgot[i].disabled = true;
 		}
 	}
-}
+};
