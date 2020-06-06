@@ -34,7 +34,7 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * @link https://semver.org
  */
-define( 'WORDPRESS_MULTISITE_RECAPTCHA', '1.0.0' );
+define( 'WORDPRESS_MULTISITE_RECAPTCHA', '1.1.0' );
 
 // Lets use composers autoload to load classes from the includes/ dir.
 require_once __DIR__ . '/vendor/autoload.php';
