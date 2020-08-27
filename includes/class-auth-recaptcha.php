@@ -42,8 +42,9 @@ class Auth_Recaptcha {
 	public function add_hooks(): self {
 		add_filter( 'script_loader_tag', array( $this, 'alter_script_tag' ) );
 
+
 		// WordPress Native.
-		add_action( 'login_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'login_form', array( $this, 'enqueue_scripts' ) );
 		add_action( 'login_head', array( $this, 'login_inline_styles' ) );
 		add_action( 'login_form', array( $this, 'g_recaptcha' ) );
 		add_filter( 'authenticate', array( $this, 'verify_captcha' ), 20, 3 );
@@ -107,7 +108,7 @@ class Auth_Recaptcha {
 		}
 
 		wp_enqueue_script( 'multisite-recaptcha', plugin_dir_url( __DIR__ ) . 'js/v2.js', array(), WORDPRESS_MULTISITE_RECAPTCHA, true );
-		wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js??onload=recaptchaCallback&render=explicit', array(), WORDPRESS_MULTISITE_RECAPTCHA, true );
+		wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js?onload=recaptchaCallback&render=explicit', array(), WORDPRESS_MULTISITE_RECAPTCHA, true );
 		wp_localize_script(
 			'multisite-recaptcha',
 			'MULTISITE_RECAPTCHA', // Must be the same as v2.js.

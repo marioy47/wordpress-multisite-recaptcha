@@ -63,6 +63,3 @@ if ( 'yes' === $site_opts['enabled'] || ( 'auto' === $site_opts['enabled'] && 'y
 	Auth_Recaptcha::get_instance()->add_hooks();
 }
 
-
-
-
