@@ -42,7 +42,6 @@ class Auth_Recaptcha {
 	public function add_hooks(): self {
 		add_filter( 'script_loader_tag', array( $this, 'alter_script_tag' ) );
 
-
 		// WordPress Native.
 		add_action( 'login_form', array( $this, 'enqueue_scripts' ) );
 		add_action( 'login_head', array( $this, 'login_inline_styles' ) );
@@ -50,6 +49,8 @@ class Auth_Recaptcha {
 		add_filter( 'authenticate', array( $this, 'verify_captcha' ), 20, 3 );
 
 		// Lost password executes "login_enqueue_scripts" and  "login_head" .
+		add_action( 'lostpassword_form', array( $this, 'enqueue_scripts' ) );
+		add_action( 'lostpassword_form', array( $this, 'login_inline_styles' ) );
 		add_action( 'lostpassword_form', array( $this, 'g_recaptcha' ) );
 		add_action( 'lostpassword_post', array( $this, 'lost_password_verify_captcha' ), 10, 1 );
 
